@@ -1,0 +1,55 @@
+version: '3.4'
+
+services:
+  publisher:
+    image: publisher
+    build:
+      context: .
+      dockerfile: Publisher/Dockerfile
+    ports:
+      - 8181:8080
+
+  publisher-sidecar:
+    image: daprio/daprd:latest
+    command: ["./daprd",
+     "-app-id", "publisher",
+     "-app-port", "8080",
+     "-dapr-http-port", "3500",
+     "-components-path", "/components"]
+    volumes:
+      - "./components:/components"
+    depends_on:
+      - publisher
+    network_mode: "service:publisher"
+
+  subscriber:
+    image: subscriber
+    build:
+      context: .
+      dockerfile: Subscriber/Dockerfile
+    ports:
+      - 8282:8080
+
+  subscriber-sidecar:
+    image: daprio/daprd:latest
+    command: ["./daprd",
+     "-app-id", "subscriber",
+     "-app-port", "8080",
+     "-dapr-http-port", "3500",
+     "-components-path", "/components"]
+    volumes:
+      - "./components:/components"
+    depends_on:
+      - subscriber
+    network_mode: "service:subscriber"
+
+  redis:
+    image: redis:latest
+    ports:
+      - 6500:6379
+
+  rabbitmq:
+    image: rabbitmq:latest
+    ports:
+      - 5672:5672
+      - 15672:15672
