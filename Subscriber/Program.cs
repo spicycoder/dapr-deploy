@@ -1,4 +1,5 @@
 var builder = WebApplication.CreateBuilder(args);
+builder.AddServiceDefaults();
 builder.Services.AddDaprClient();
 builder.Services.AddControllers().AddDapr();
 builder.Services.AddEndpointsApiExplorer();
